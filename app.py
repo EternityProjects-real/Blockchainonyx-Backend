@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import json 
 import mining
+import mlmodel
 
 with open("info.json", "r") as c:
     parameters = json.load(c)["parameters"]
@@ -120,6 +121,12 @@ def hospital():
             return redirect(url_for('index'))
     return render_template('login.html')
 
+
+@app.route('/predict')
+def predict():
+    y_pred, regr.intercept_, regr.coef_, rmse = mlmodel.compute_model(x,y)
+    redirect(url_for('index'))
+    
 
 if __name__ == '__main__':
     app.run(debug = True, threaded = True)
