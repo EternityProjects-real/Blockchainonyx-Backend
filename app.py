@@ -43,30 +43,25 @@ class Blockchain_Waiting(db.Model):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(10), nullable=False)
-    public_key = db.Column(db.String(10), nullable=False)
-    private_key = db.Column(db.String(10, nullable=False))
-    current_balance = db.Column(db.string(10, nullable=False))
+    public_user = db.Column(db.String(10), nullable=False)
+    private_user = db.Column(db.String(10), nullable=False)
+    current_balance = db.Column(db.Integer, nullable=False)
     dob = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
         return self.id + ' : ' + self.name
 
 
-class Miner(db.Mode):
+class Miner(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(10), nullable=False)
-    public_key = db.Column(db.String(10), nullable=False)
-    private_key = db.Column(db.String(10, nullable=False))
-    current_mine = db.Column(db.string(10, nullable=False))
+    mine_user = db.Column(db.String(10), nullable=False)
+    current_mine = db.Column(db.Integer, nullable=False)
     dob = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
         return self.id + ' : ' + self.name
 
-
-@login_manager.user_loader
-def load_user(id):
-    return User().query.get(int(id))
 
 
 
@@ -81,6 +76,7 @@ def index():
         print(blockchain_Waiting)
         db.session.add(blockchain_Waiting)
         db.session.commit()
+        return redirect("http://127.0.0.1:3000/overview/user")
     blockchain = Blockchain.query.all()
     return render_template('index.html', blockchain = blockchain)
 
@@ -88,15 +84,16 @@ def index():
 @app.route('/mine', methods = ['GET', 'POST'])
 def mine():
     if request.method == 'POST':
-        difficulty = request.form.get('difficulty')
-        id_block = request.form.get('id_block')
-        block_tobe_mined = Blockchain_Waiting.query.all()[0]
-        print(block_tobe_mined)
-        x, new_hash = mining.set_mine(block_tobe_mined)
+        mine_user = request.form.get('mine_user')
+        pos_miners = Miner.query.filter_by(mine_user = mine_user).first()
+        block_tobe_mined = Blockchain_Waiting.query.all()[0]    
+        x, new_hash, mine_rewarded = mining.set_mine(block_tobe_mined)
         block = Blockchain(prev_hash = x.prev_hash, sender_id = x.sender_id, reciver_id = x.reciver_id, transaction_amt = x.transaction_amt, new_hash = new_hash)
+        pos_miners.current_mine = pos_miners.current_mine + mine_rewarded
         db.session.add(block)
-        db.session.delete(block_tobe_minedxc )
+        db.session.delete(block_tobe_mined)
         db.session.commit()
+        return redirect("http://127.0.0.1:3000/overview/miner")
     all_pending_block = Blockchain_Waiting.query.all()
     return render_template('yo.html', all_pending_block = all_pending_block)
 
@@ -107,6 +104,21 @@ def genesis():
     db.session.add(block)
     db.session.commit()
     return redirect(url_for('index'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def hospital():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        dob = request.form.get('dob')
+        pos_miners = Miner.query.filter_by(dob = dob).first()
+        pos_user = User.query.filter_by(dob = dob).all()
+        if pos_miners:
+            return redirect(url_for('mine'), pos_miners.id)
+        if pos_user:
+            user = User.query.get(i.id)
+            return redirect(url_for('index'))
+    return render_template('login.html')
 
 
 if __name__ == '__main__':

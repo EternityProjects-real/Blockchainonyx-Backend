@@ -10,7 +10,6 @@ def mine(item, difficulty):
         text = str(item.prev_hash) + str(item.sender_id) + str(item.reciver_id) + str(item.transaction_amt) + str(nonce)
         new_hash = SHA256(text)
         if new_hash.startswith(prefix_str):
-            print(f"Yay! Successfully mined bitcoins with nonce value:{nonce}")
             return new_hash
 
     raise BaseException(f"Couldn't find correct has after trying {MAX_NONCE} times")
@@ -19,4 +18,5 @@ def mine(item, difficulty):
 def set_mine(item):
     difficulty = 4
     new_hash = mine(item, difficulty)
-    return item, new_hash
+    mine_rewarded = 50
+    return item, new_hash, mine_rewarded
