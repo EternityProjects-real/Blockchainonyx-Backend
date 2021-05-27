@@ -12,7 +12,4 @@ def compute_model(x,y):
 
     y_pred = regr.predict(X_test)
 
-    rmse = np.sqrt(mse(y_pred, y_test))
-    rmse
-
-    return y_pred, regr.intercept_, regr.coef_, rmse
+    return y_pred, regr.intercept_, regr.coef_

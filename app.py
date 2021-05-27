@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import json 
 import mining
-import mlmodel
+# import mlmodel
 
 with open("info.json", "r") as c:
     parameters = json.load(c)["parameters"]
@@ -61,7 +61,7 @@ class Miner(db.Model):
     dob = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
-        return self.id + ' : ' + self.name
+        return str(self.id) + ' : ' + str(self.name)
 
 
 
@@ -72,7 +72,7 @@ def index():
         sender_id = request.form.get('sender_id')
         reciver_id = request.form.get('reciver_id')
         transaction_amt = request.form.get('transaction_amt')
-        prev_block = Blockchain.query.all()[-1]
+        prev_block = Blockchain.query.all()[0]
         blockchain_Waiting = Blockchain_Waiting(prev_hash = prev_block.prev_hash, sender_id = sender_id, reciver_id = reciver_id, transaction_amt = transaction_amt, nonce = 1)
         print(blockchain_Waiting)
         db.session.add(blockchain_Waiting)
@@ -101,7 +101,7 @@ def mine():
 
 @app.route('/genesis', methods = ['GET', 'POST'])
 def genesis():
-    block = Blockchain(prev_hash = "0x0", sender_id = "Not me", reciver_id = "Not me", transaction_amt = "Lot of money", new_hash = mining.SHA256("ABCD"))
+    block = Blockchain(prev_hash = "0000", sender_id = "Not me", reciver_id = "Not me", transaction_amt = "Lot of money", new_hash = mining.SHA256("ABCD"))
     db.session.add(block)
     db.session.commit()
     return redirect(url_for('index'))
@@ -122,10 +122,10 @@ def hospital():
     return render_template('login.html')
 
 
-@app.route('/predict')
-def predict():
-    y_pred, regr.intercept_, regr.coef_, rmse = mlmodel.compute_model(x,y)
-    redirect(url_for('index'))
+# @app.route('/predict')
+# def predict():
+#     y_pred, regr.intercept_, regr.coef_, rmse = mlmodel.compute_model(x,y)
+#     redirect(url_for('index'))
     
 
 if __name__ == '__main__':

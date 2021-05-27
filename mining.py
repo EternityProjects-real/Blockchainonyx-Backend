@@ -9,6 +9,7 @@ def mine(item, difficulty):
     for nonce in range(MAX_NONCE):
         text = str(item.prev_hash) + str(item.sender_id) + str(item.reciver_id) + str(item.transaction_amt) + str(nonce)
         new_hash = SHA256(text)
+        print(new_hash)
         if new_hash.startswith(prefix_str):
             return new_hash
 
@@ -16,7 +17,7 @@ def mine(item, difficulty):
 
 
 def set_mine(item):
-    difficulty = 4
+    difficulty = 5
     new_hash = mine(item, difficulty)
     mine_rewarded = 50
     return item, new_hash, mine_rewarded
